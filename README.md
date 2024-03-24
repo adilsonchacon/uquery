@@ -17,6 +17,7 @@ def deps do
 end
 ```
 
+## Usage
 ```elixir
 # in your repo file:
 defmodule MyApp.Repo do
