@@ -38,7 +38,8 @@ defmodule UQuery.MixProject do
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0", only: :test},
       {:mox, "~> 1.0", only: :test},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 
@@ -48,7 +49,7 @@ defmodule UQuery.MixProject do
 
   defp package() do
     [
-      name: "UQuery",
+      name: "uquery",
       files: ~w(lib mix.exs README.md LICENSE config),
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url}
