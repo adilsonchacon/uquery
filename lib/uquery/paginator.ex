@@ -1,8 +1,53 @@
 defmodule UQuery.Paginator do
   @moduledoc """
+  Documentation for `UQuery Paginator`.
+
   Paginates a query and returns items and metadata.
   """
 
+  @doc """
+  Add to your Repo file the "paginate" method following the example below:
+
+  ```
+  defmodule MyApp.Repo do
+    use Ecto.Repo,
+      otp_app: :my_app,
+      adapter: Ecto.Adapters.Postgres
+
+    ...
+
+    def paginate(query, page, per_page) do
+      UQuery.Paginator.paginate(__MODULE__, query, page, per_page)
+    end
+
+    ...
+
+  end
+  ```
+
+  Now call the method above in your models:
+
+  ```
+  defmodule MyApp.Projects do
+    ...
+
+    import Ecto.Query, warn: false
+    alias MyApp.Repo
+
+    alias MyApp.Projects.Project
+
+    ...
+
+    def list_projects(page, per_page) do
+      from(p in Project, select: p)
+      |> Repo.paginate(page, per_page)
+    end
+
+    ...
+
+  end
+  ```
+  """
   import Ecto.Query, warn: false
 
   def paginate(repo, %Ecto.Query{} = query, page, per_page) when is_integer(page) and is_integer(per_page) do
