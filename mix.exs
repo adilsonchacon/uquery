@@ -44,4 +44,13 @@ defmodule UQuery.MixProject do
   defp description() do
     "UQuery centralizes reusable queries, e.g. for pagination and counting rows."
   end
+
+  defp package() do
+    [
+      name: "UQuery",
+      files: ~w(lib mix.exs README.md LICENSE config),
+      licenses: ["MIT"],
+      links: %{"GitHub" => @source_url}
+    ]
+  end
 end
