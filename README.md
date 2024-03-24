@@ -1,6 +1,6 @@
 # Uquery
 
-Centralizes reusable queries, e.g. for pagination and counting rows.
+Centralizes reusable SQL queries, e.g. for pagination and counting rows.
 
 **TODO: Add description**
 
