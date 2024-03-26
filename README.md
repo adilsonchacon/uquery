@@ -15,6 +15,7 @@ def deps do
 end
 ```
 
+Run it in shell:
 ```
 > mix deps.get
 ```
