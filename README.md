@@ -2,8 +2,6 @@
 
 Centralizes reusable SQL queries, e.g. for pagination and counting rows.
 
-**TODO: Add description**
-
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
@@ -16,6 +14,12 @@ def deps do
   ]
 end
 ```
+
+Run it in shell:
+```
+> mix deps.get
+```
+
 
 ## Usage
 ```elixir
