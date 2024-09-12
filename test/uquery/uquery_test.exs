@@ -100,6 +100,24 @@ defmodule UQueryTest do
     assert metadata[:serie] == []
   end
 
+  test "pagination/1 returns query with pagination and the pagination metadata" do
+    _people = load_people(40)
+
+    regular_query = from(p in UQuery.Person, select: p)
+    {paginated_query, metadata} = UQuery.Paginator.pagination(UQuery.Repo, regular_query, 1, 20)
+
+    # IO.inspect(paginated_query)
+    assert %Ecto.Query{} = paginated_query
+    assert metadata[:count] == 40
+    assert metadata[:page] == 1
+    assert metadata[:per_page] == 20
+    assert metadata[:first] == 1
+    assert metadata[:last] == 2
+    assert metadata[:prev] == nil
+    assert metadata[:next] == 2
+    assert metadata[:serie] == [1, 2]
+  end
+
   test "new/1 returns a serie with ellipsis at the end" do
     people = load_people(200)
 

@@ -12,7 +12,7 @@ by adding `uquery` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:uquery, "~> 0.1.0"}
+    {:uquery, "~> 0.1.1"}
   ]
 end
 ```
@@ -29,6 +29,10 @@ defmodule MyApp.Repo do
 
   def paginate(query, page, per_page) do
     UQuery.Paginator.paginate(__MODULE__, query, page, per_page)
+  end
+
+  def pagination(query, page, per_page) do
+    UQuery.Paginator.pagination(__MODULE__, query, page, per_page)
   end
 
   def count(query) do
@@ -50,11 +54,20 @@ defmodule MyApp.Project do
 
   ...
 
+  # List example 1
   def list_projects(page, per_page) do
     from(p in Project, select: p)
     |> Repo.paginate(page, per_page)
   end
 
+  # List example 2
+  def list_projects(page, per_page) do
+    from(p in Project, select: p)
+    { query, pagination } = Repo.pagination(page, per_page)
+    { Repo.all(query), pagination }
+  end
+
+  # Count list
   def count_projects() do
     from(p in Project, select: p)
     |> Repo.count()

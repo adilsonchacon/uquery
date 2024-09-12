@@ -2,10 +2,29 @@ defmodule UQuery.Paginator do
   @moduledoc """
   Documentation for `UQuery Paginator`.
 
-  Paginates a query and returns items and metadata.
+  Toolkit for query pagination.
   """
 
+  import Ecto.Query, warn: false
+
   @doc """
+  Returns items paginated and metadata.
+
+  # Example:
+  #  {
+  #     [ %YourApp.Person{id: 1}, ..., %YourApp.Person{id: 20} ],
+  #     %{
+  #       count: 100,
+  #       page: 1,
+  #       per_page: 20,
+  #       first: 1,
+  #       last: 5,
+  #       prev: nil,
+  #       next: 2,
+  #       serie: [1, 2, 3, 4, 5]
+  #     }
+  #  }
+
   Add to your Repo file the "paginate" method following the example below:
 
   ```
@@ -48,36 +67,107 @@ defmodule UQuery.Paginator do
   end
   ```
   """
-  import Ecto.Query, warn: false
-
   def paginate(repo, %Ecto.Query{} = query, page, per_page) when is_integer(page) and is_integer(per_page) do
-    items = query_items(repo, query, page, per_page)
+    { query, pagination } = pagination(repo, query, page, per_page)
+
+    {
+      repo.all(query),
+      pagination
+    }
+  end
+
+  @doc """
+  Returns the query with pagination statements and pagination metadata.
+
+  # Example:
+  #  {
+  #     %Ecto.Query{},
+  #     %{
+  #       count: 100,
+  #       page: 1,
+  #       per_page: 20,
+  #       first: 1,
+  #       last: 5,
+  #       prev: nil,
+  #       next: 2,
+  #       serie: [1, 2, 3, 4, 5]
+  #     }
+  #  }
+
+  Add to your Repo file the "paginate" method following the example below:
+
+  ```
+  defmodule MyApp.Repo do
+    use Ecto.Repo,
+      otp_app: :my_app,
+      adapter: Ecto.Adapters.Postgres
+
+    ...
+
+    def pagination(query, page, per_page) do
+      UQuery.Paginator.pagination(__MODULE__, query, page, per_page)
+    end
+
+    ...
+
+  end
+  ```
+
+  Now call the method above in your models:
+
+  ```
+  defmodule MyApp.Projects do
+    ...
+
+    import Ecto.Query, warn: false
+    alias MyApp.Repo
+
+    alias MyApp.Projects.Project
+
+    ...
+
+    def list_projects(page, per_page) do
+      from(p in Project, select: p)
+      |> Repo.pagination(page, per_page)
+    end
+
+    ...
+
+  end
+  ```
+  """
+  def pagination(repo, %Ecto.Query{} = query, page, per_page) when is_integer(page) and is_integer(per_page) do
     count = UQuery.Counter.count(repo, query)
+
+    {
+      build_query(query, page, per_page),
+      build_pagination(count, page, per_page)
+    }
+  end
+
+  defp build_query(%Ecto.Query{} = query, page, per_page) when is_integer(page) and is_integer(per_page) do
+    limit = limit_per_page(per_page)
+    offset = (page - 1) * limit
+    from query, limit: ^limit, offset: ^offset
+  end
+
+  defp build_pagination(count, page, per_page) do
     last = get_last_page(count, per_page)
     first = get_first_page(last)
     prev = get_prev_page(page, first)
     next = get_next_page(page, last)
     serie = build_serie(page, last, prev, next)
 
-    {
-      items,
-      %{
-        count: count,
-        page: page,
-        per_page: per_page,
-        first: first,
-        last: last,
-        prev: prev,
-        next: next,
-        serie: serie
-      }
+    %{
+      count: count,
+      page: page,
+      per_page: per_page,
+      first: first,
+      last: last,
+      prev: prev,
+      next: next,
+      serie: serie
     }
-  end
-
-  def query_items(repo, %Ecto.Query{} = query, page, per_page) when is_integer(page) and is_integer(per_page) do
-    limit = limit_per_page(per_page)
-    offset = (page - 1) * limit
-    repo.all(from query, limit: ^limit, offset: ^offset)
   end
 
   defp limit_per_page(per_page) do
